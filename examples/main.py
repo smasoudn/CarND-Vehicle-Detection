@@ -16,6 +16,8 @@ from sklearn.cross_validation import train_test_split
 from scipy.ndimage.measurements import label
 from collections import deque
 from moviepy.editor import VideoFileClip
+import pickle
+
 
 
 
@@ -95,6 +97,10 @@ print('Test Accuracy of SVC = ', round(svc.score(X_test, y_test), 4))
 # Check the prediction time for a single sample
 t=time.time()
 
+dist_pickle = {"svc":svc, "X_scaler": X_scaler}
+pickle.dump(dist_pickle, open("svc_pickle.p", "wb"))
+    
+    
 
 # Test on a sample image
 ############################################################
@@ -183,6 +189,10 @@ def detectCars(image):
     
     
     return draw_img
+
+dist_pickle = pickle.load(open("svc_pickle.p", "rb"))
+svc = dist_pickle["svc"]
+X_scaler=dist_pickle["X_scaler"]
 
 video_output = './output_images/project_video_result.mp4'
 clip1 = VideoFileClip("../project_video.mp4")
