@@ -13,6 +13,11 @@ import time
 from sklearn.svm import LinearSVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import train_test_split
+from scipy.ndimage.measurements import label
+from collections import deque
+from moviepy.editor import VideoFileClip
+
+
 
 import myUtils
 
@@ -20,6 +25,12 @@ import myUtils
 # Read training and testing data
 cars = glob.glob('../data/vehicles/**/*.png', recursive=True)
 notcars = glob.glob('../data/non-vehicles/**/*.png', recursive=True)
+
+
+sample_size = 500
+cars = cars[0:sample_size]
+notcars = notcars[0:sample_size]
+
 
 color_space = 'HSV' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
 orient = 9  # HOG orientations
@@ -47,6 +58,7 @@ notcar_features = myUtils.extract_features(notcars, color_space=color_space,
                         cell_per_block=cell_per_block, 
                         hog_channel=hog_channel, spatial_feat=spatial_feat, 
                         hist_feat=hist_feat, hog_feat=hog_feat)
+
 
 
 X = np.vstack((car_features, notcar_features)).astype(np.float64)                        
@@ -84,29 +96,96 @@ print('Test Accuracy of SVC = ', round(svc.score(X_test, y_test), 4))
 t=time.time()
 
 
+# Test on a sample image
+############################################################
 
 image = mpimg.imread('../test_images/test4.jpg')
-draw_image = np.copy(image)
+#img = image
+img = image.astype(np.float32)/255
+
+ystart = 300
+ystop = 630
+scale = 1.7
 
 
-windows = myUtils.slide_window(image, x_start_stop=[None, None], y_start_stop=y_start_stop, 
-                    xy_window=(96, 96), xy_overlap=(0.5, 0.5))
+out_img, bbox_list = myUtils.find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block, hog_channel, spatial_size, hist_bins, color_space, spatial_feat, hist_feat, hog_feat)
+              
 
+num_frames_to_avg = 1
+bbox_deque = deque([], num_frames_to_avg)
+bbox_img_deque = deque([], num_frames_to_avg)
+                         
+bbox_deque.append(bbox_list)
+bbox_img_deque.append(out_img)
+    
+heat_avg = np.zeros_like(image[:,:,0]).astype(np.float)
+heat_threshold = 1 
+i = 0  
+for (bbox_deque_i, bbox_img_deque_i) in zip(bbox_deque, bbox_img_deque):        
+    
+    # Add heat to each box in box list
+    heat_avg = myUtils.add_heat(heat_avg, bbox_deque_i)    
+    """
+    fig1 = plt.figure(1)
+    plt.subplot(num_frames_to_avg, 2, 2*i+1)
+    plt.imshow(bbox_img_deque_i)
+    plt.title('Bounding boxes')
+    plt.subplot(num_frames_to_avg, 2, 2*i+2)
+    heatmap = np.clip(heat_avg, 0, 255)
+    plt.imshow(heatmap, cmap='hot')
+    plt.title('Heat Map')
+    """
+    i += 1
+        
+# Apply threshold to help remove false positives
+heat_avg = myUtils.apply_threshold(heat_avg, heat_threshold)
 
-hot_windows = myUtils.search_windows(image, windows, svc, X_scaler, color_space=color_space, 
-                        spatial_size=spatial_size, hist_bins=hist_bins, 
-                        orient=orient, pix_per_cell=pix_per_cell, 
-                        cell_per_block=cell_per_block, 
-                        hog_channel=hog_channel, spatial_feat=spatial_feat, 
-                        hist_feat=hist_feat, hog_feat=hog_feat)                       
+# Visualize the heatmap when displaying    
+heatmap = np.clip(heat_avg, 0, 255)
+plt.imshow(heatmap, cmap='hot')
+# Find final boxes from heatmap using label function
+labels = label(heatmap)
+draw_img = myUtils.draw_labeled_bboxes(np.copy(image), labels)
 
-window_img = myUtils.draw_boxes(draw_image, hot_windows, color=(0, 0, 255), thick=6)                    
+fig2 = plt.figure(2)
+plt.imshow(labels[0], cmap='gray')
 
-plt.imshow(window_img)
-
-ystart = 400
-ystop = 656
-scale = 2
-out_img = myUtils.find_cars(image, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block, spatial_size, hist_bins)
-
+fig2 = plt.figure(3)
+plt.imshow(draw_img)
+    
+     
 plt.imshow(out_img)
+
+
+
+def detectCars(image):
+    out_img, bbox_list = myUtils.find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block, hog_channel, spatial_size, hist_bins, color_space, spatial_feat, hist_feat, hog_feat)
+
+    bbox_deque.append(bbox_list)
+    bbox_img_deque.append(out_img)
+    
+    heat_avg = np.zeros_like(image[:,:,0]).astype(np.float)
+
+    i = 0  
+    for (bbox_deque_i, bbox_img_deque_i) in zip(bbox_deque, bbox_img_deque):                
+        heat_avg = myUtils.add_heat(heat_avg, bbox_deque_i)        
+        i += 1
+        
+    # Apply threshold to help remove false positives
+    heat_avg = myUtils.apply_threshold(heat_avg, heat_threshold)
+
+    # Visualize the heatmap when displaying    
+    heatmap = np.clip(heat_avg, 0, 255)
+
+    # Find final boxes from heatmap using label function
+    labels = label(heatmap)     
+    draw_img = myUtils.draw_labeled_bboxes(np.copy(image), labels)
+    
+    
+    return draw_img
+
+video_output = './output_images/project_video_result.mp4'
+clip1 = VideoFileClip("../project_video.mp4")
+input_clip = clip1.fl_image(detectCars)
+#input_clip.write_videofile(video_output, audio=False)   
+

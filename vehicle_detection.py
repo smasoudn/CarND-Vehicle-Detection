@@ -304,7 +304,7 @@ def process_frame(image):
     heatmap = np.clip(heat_avg, 0, 255)
 
     # Find final boxes from heatmap using label function
-    labels = label(heatmap)
+    labels = label(heatmap)     
     draw_img = draw_labeled_bboxes(np.copy(image), labels)
     #fig2 = plt.figure(2)
     #plt.imshow(labels[0], cmap='gray')
@@ -398,7 +398,7 @@ def test_static():
 
 def test_video():
   video_output = 'output_images/vehicles_detected.mp4'
-  clip1 = VideoFileClip("project_video.mp4")
+  clip1 = VideoFileClip("../project_video.mp4")
   input_clip = clip1.fl_image(process_frame)
   input_clip.write_videofile(video_output, audio=False)
 
