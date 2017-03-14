@@ -232,7 +232,7 @@ def find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, ce
     
     draw_img = np.copy(img)
     #TODO :Confirm this
-    #img = img.astype(np.float32)/255
+    img = img.astype(np.float32)/255
     
     img_tosearch = img[ystart:ystop,:,:]
     ctrans_tosearch = convert_color(img_tosearch, cspace)

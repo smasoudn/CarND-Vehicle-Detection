@@ -29,23 +29,26 @@ cars = glob.glob('../data/vehicles/**/*.png', recursive=True)
 notcars = glob.glob('../data/non-vehicles/**/*.png', recursive=True)
 
 
-sample_size = 500
-cars = cars[0:sample_size]
-notcars = notcars[0:sample_size]
+#sample_size = 500
+#cars = cars[0:sample_size]
+#notcars = notcars[0:sample_size]
 
 
-color_space = 'HSV' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
+color_space = 'YCrCb' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
 orient = 9  # HOG orientations
 pix_per_cell = 8 # HOG pixels per cell
 cell_per_block = 2 # HOG cells per block
 hog_channel = "ALL" # Can be 0, 1, 2, or "ALL"
-spatial_size = (16, 16) # Spatial binning dimensions
-hist_bins = 16    # Number of histogram bins
+spatial_size = (32, 32) # Spatial binning dimensions
+hist_bins = 32    # Number of histogram bins
 spatial_feat = True # Spatial features on or off
-hist_feat = True # Histogram features on or off
+hist_feat = False # Histogram features on or off
 hog_feat = True # HOG features on or off
-y_start_stop = [300, None] # Min and max in y to search in slide_window()
-
+y_start_stop = [400, 720] # Min and max in y to search in slide_window()
+ystart,  ystop = y_start_stop
+scale = 1.5
+heat_threshold = 10  # For single image, it should be low value ~1, for video frames, it can be high value ~5
+num_frames_to_avg = 10
 
 
 car_features = myUtils.extract_features(cars, color_space=color_space, 
@@ -98,20 +101,20 @@ print('Test Accuracy of SVC = ', round(svc.score(X_test, y_test), 4))
 t=time.time()
 
 dist_pickle = {"svc":svc, "X_scaler": X_scaler}
-pickle.dump(dist_pickle, open("svc_pickle.p", "wb"))
+pickle.dump(dist_pickle, open("model_svc_YCrCb_NoHist.p", "wb"))
     
     
 
 # Test on a sample image
 ############################################################
 
-image = mpimg.imread('../test_images/test4.jpg')
+image = mpimg.imread('../test_images/test7.png')
 #img = image
 img = image.astype(np.float32)/255
 
-ystart = 300
-ystop = 630
-scale = 1.7
+ystart = 400
+ystop = 720
+scale = 2.6
 
 
 out_img, bbox_list = myUtils.find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block, hog_channel, spatial_size, hist_bins, color_space, spatial_feat, hist_feat, hog_feat)
@@ -125,7 +128,7 @@ bbox_deque.append(bbox_list)
 bbox_img_deque.append(out_img)
     
 heat_avg = np.zeros_like(image[:,:,0]).astype(np.float)
-heat_threshold = 1 
+ 
 i = 0  
 for (bbox_deque_i, bbox_img_deque_i) in zip(bbox_deque, bbox_img_deque):        
     
@@ -164,8 +167,16 @@ plt.imshow(out_img)
 
 
 
+
+scale = 1.4
+heat_threshold = 10  # For single image, it should be low value ~1, for video frames, it can be high value ~5
+
+num_frames_to_avg = 10
+bbox_deque = deque([], num_frames_to_avg)
+bbox_img_deque = deque([], num_frames_to_avg)
+                   
 def detectCars(image):
-    out_img, bbox_list = myUtils.find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block, hog_channel, spatial_size, hist_bins, color_space, spatial_feat, hist_feat, hog_feat)
+    out_img, bbox_list = myUtils.find_cars(image, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block, hog_channel, spatial_size, hist_bins, color_space, spatial_feat, hist_feat, hog_feat)
 
     bbox_deque.append(bbox_list)
     bbox_img_deque.append(out_img)
@@ -189,13 +200,13 @@ def detectCars(image):
     
     
     return draw_img
-
+"""
 dist_pickle = pickle.load(open("svc_pickle.p", "rb"))
 svc = dist_pickle["svc"]
 X_scaler=dist_pickle["X_scaler"]
-
-video_output = './output_images/project_video_result.mp4'
+"""
+video_output = '../output_images/project_video_result_4_14_10_10.mp4'
 clip1 = VideoFileClip("../project_video.mp4")
 input_clip = clip1.fl_image(detectCars)
-#input_clip.write_videofile(video_output, audio=False)   
+input_clip.write_videofile(video_output, audio=False)   
 
