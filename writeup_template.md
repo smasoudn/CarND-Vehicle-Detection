@@ -113,5 +113,6 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 ####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+Using fixed size window is not an optimal solution. It would be better to apply window search in multi scales (larger near the bottom of the frame and smaller near the horizon).
+When two vehicles are very close together my approach misses one of them. Using Kalman filter will help to have more robust tracking especially when two vehicles are too close to eachother.
 
