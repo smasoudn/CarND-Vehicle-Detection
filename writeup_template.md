@@ -26,26 +26,26 @@ You're reading it! :)
 
 ####1. Explain how (and identify where in your code) you extracted HOG features from the training images.
 
-The code for this step is contained in lines # through # of the file called `myUtils.py`).  
+The code for this step is contained in lines 52 through 58 of the file called `myUtils.py` and `85` through `94` in `myUtils.py`.  
 
 I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
 
 Vehicle:
 
-<img src="./output_images/vehicle.png" align="middle" width=40% height=40%> 
+<img src="./output_images/vehicle.png" align="middle" width=20% height=20%> 
 
 Not vehicle:
 
-<img src="./output_images/notVehicle.png" align="middle" width=40% height=40%> 
+<img src="./output_images/notVahicle.png" align="middle" width=20% height=20%> 
 
 
 I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
 
-Here is an example using the `YCrCb` color space and HOG parameters of `orientations=9`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
+Here is an example using the color space and HOG parameters of `orientations=9`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
 
-<img src="./output_images/car.png" align="middle" width=40% height=40%> 
+<img src="./output_images/car.png" align="middle" width=20% height=20%> 
 
-<img src="./output_images/hog.png" align="middle" width=40% height=40%> 
+<img src="./output_images/hog.png" align="middle" width=20% height=20%> 
 
 ####2. Explain how you settled on your final choice of HOG parameters.
 
@@ -55,22 +55,28 @@ I tried various combinations of parameters and find the following good enough (e
 ####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
 I trained a linear SVM using spatial and HOG features. I also used color histogram during my experiments. However, color histogram did not impact results much which can be explained as cars have different colors and what is more important to detect cars is their shapes.
-
+The corresponding codes are in lines `97` though `101` in `main.py`.
 
 ###Sliding Window Search
 
 ####1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
+The sliding window search has been implemented insie funtion `find_cars` in `myUtils.py` (lines `231` through `310`).
+This part of code, slides a fixed size window (64x64)over an image of HOG features and crops out a patch with corresponding HOG features. 
+
 To avoid calculating HOG for  an image over and over again, I used a fixed size window of size 64x64 pixels scaled down to 1.5 times, with 75% overlap. These values obtained emprically. larger or smaller values than `scale = 1.5` resulted in missing far and near vehicles.
 
-<img src="./output_images/hog.png" align="middle" width=40% height=40%> 
 
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
 Ultimately I searched on a fixed scale using YCrCb 3-channel HOG features plus spatially binned color in the feature vector, which provided a nice result.  Here are some example images:
 
-![alt text][image4]
+<img src="./output_images/im1.png" align="middle" width=20% height=20%> 
+<img src="./output_images/im2.png" align="middle" width=20% height=20%> 
+<img src="./output_images/im3.png" align="middle" width=20% height=20%> 
+<img src="./output_images/im4.png" align="middle" width=20% height=20%> 
+
 
 To improve the efficiency, I calculated the HOG features once for each frame and crops out corresponding sliding window patches. In addition, I searched for cars only in the lower half of the frame, where vehicles can exist, and  ignored anything above the horizon.
 
@@ -79,7 +85,7 @@ To improve the efficiency, I calculated the HOG features once for each frame and
 ### Video Implementation
 
 ####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./output_images/project_video_result_4.mp4)
 
 
 ####2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
@@ -90,13 +96,14 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 ### Here are six frames and their corresponding heatmaps:
 
-![alt text][image5]
+<img src="./output_images/six.png" align="middle" width=20% height=20%> 
+
 
 ### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
-![alt text][image6]
+<img src="./output_images/label.png" align="middle" width=20% height=20%> 
 
 ### Here the resulting bounding boxes are drawn onto the last frame in the series:
-![alt text][image7]
+<img src="./output_images/result.png" align="middle" width=20% height=20%> 
 
 
 
