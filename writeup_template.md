@@ -32,20 +32,20 @@ I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an 
 
 Vehicle:
 
-<img src="./output_images/vehicle.jpg" align="middle" width=40% height=40%> 
+<img src="./output_images/vehicle.png" align="middle" width=40% height=40%> 
 
 Not vehicle:
 
-<img src="./output_images/notVehicle.jpg" align="middle" width=40% height=40%> 
+<img src="./output_images/notVehicle.png" align="middle" width=40% height=40%> 
 
 
 I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
 
 Here is an example using the `YCrCb` color space and HOG parameters of `orientations=9`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
 
-<img src="./output_images/car.jpg" align="middle" width=40% height=40%> 
+<img src="./output_images/car.png" align="middle" width=40% height=40%> 
 
-<img src="./output_images/hog.jpg" align="middle" width=40% height=40%> 
+<img src="./output_images/hog.png" align="middle" width=40% height=40%> 
 
 ####2. Explain how you settled on your final choice of HOG parameters.
 
@@ -63,7 +63,7 @@ I trained a linear SVM using spatial and HOG features. I also used color histogr
 
 To avoid calculating HOG for  an image over and over again, I used a fixed size window of size 64x64 pixels scaled down to 1.5 times, with 75% overlap. These values obtained emprically. larger or smaller values than `scale = 1.5` resulted in missing far and near vehicles.
 
-<img src="./output_images/hog.jpg" align="middle" width=40% height=40%> 
+<img src="./output_images/hog.png" align="middle" width=40% height=40%> 
 
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
