@@ -36,7 +36,7 @@ Vehicle:
 
 Not vehicle:
 
-<img src="./output_images/notVahicle.png" align="middle" width=20% height=20%> 
+<img src="./output_images/notvahicle.png" align="middle" width=20% height=20%> 
 
 
 I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
@@ -72,10 +72,10 @@ To avoid calculating HOG for  an image over and over again, I used a fixed size 
 
 Ultimately I searched on a fixed scale using YCrCb 3-channel HOG features plus spatially binned color in the feature vector, which provided a nice result.  Here are some example images:
 
-<img src="./output_images/im1.png" align="middle" width=20% height=20%> 
-<img src="./output_images/im2.png" align="middle" width=20% height=20%> 
-<img src="./output_images/im3.png" align="middle" width=20% height=20%> 
-<img src="./output_images/im4.png" align="middle" width=20% height=20%> 
+<img src="./output_images/im1.png" align="middle" width=40% height=40%> 
+<img src="./output_images/im2.png" align="middle" width=40% height=40%> 
+<img src="./output_images/im3.png" align="middle" width=40% height=40%> 
+<img src="./output_images/im4.png" align="middle" width=40% height=40%> 
 
 
 To improve the efficiency, I calculated the HOG features once for each frame and crops out corresponding sliding window patches. In addition, I searched for cars only in the lower half of the frame, where vehicles can exist, and  ignored anything above the horizon.
@@ -96,14 +96,14 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 ### Here are six frames and their corresponding heatmaps:
 
-<img src="./output_images/six.png" align="middle" width=20% height=20%> 
+<img src="./output_images/six.png" align="middle" width=50% height=50%> 
 
 
 ### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
-<img src="./output_images/label.png" align="middle" width=20% height=20%> 
+<img src="./output_images/label.png" align="middle" width=40% height=40%> 
 
 ### Here the resulting bounding boxes are drawn onto the last frame in the series:
-<img src="./output_images/result.png" align="middle" width=20% height=20%> 
+<img src="./output_images/result.png" align="middle" width=40% height=40%> 
 
 
 
